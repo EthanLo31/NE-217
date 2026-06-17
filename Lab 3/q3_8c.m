@@ -30,7 +30,7 @@ u_after = right_boundary(idx);
 
 % estimate t*
 
-t1_star = t_before + (0.05 - u_before) .* (t_after - t_before) / (u_after - u_before)
+t1_star = t_before + (0.05 - u_before) .* (t_after - t_before) / (u_after - u_before);
 
 figure;
 
