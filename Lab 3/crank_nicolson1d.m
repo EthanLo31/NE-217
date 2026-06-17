@@ -18,7 +18,6 @@
 % x_out: List of points in X over which solution was approximated
 % t_out: List of time points over which solution was approximated
 % U_out: Contains all the solution approximations for all points (x_out, t_out)
-
 function [x_out, t_out, U_out] = crank_nicolson1d(kappa, x_rng, nx, t_rng, nt, u_init, u_bndry)
 
     % Check if kappa is scalar
@@ -83,13 +82,20 @@ function [x_out, t_out, U_out] = crank_nicolson1d(kappa, x_rng, nx, t_rng, nt, u
     % Bounds
     bndry = u_bndry(t_out);
 
-    % Left
-    U_out(1, :) = bndry(1, :);
-    % Right
-    U_out(end, :) = bndry(2, :);
+    % Safely pre-fill boundaries only if they are NOT NaN (Dirichlet)
+
+    left_valid = ~isnan(bndry(1, :));
+
+    U_out(1, left_valid) = bndry(1, left_valid);
+
+    right_valid = ~isnan(bndry(2, :));
+
+    U_out(end, right_valid) = bndry(2, right_valid);
 
     % Step 3: Solve
-    % Setup tridiagonal matrices
+
+    % Setup standard tridiagonal matrices
+
     a_diag = (1 + r) * ones(nx - 2, 1);
     a_off = (-r / 2) * ones(nx - 3, 1);
     A = diag(a_diag) + diag(a_off, 1) + diag(a_off, -1);
@@ -98,18 +104,66 @@ function [x_out, t_out, U_out] = crank_nicolson1d(kappa, x_rng, nx, t_rng, nt, u
     b_off = (r / 2) * ones(nx - 3, 1);
     B = diag(b_diag) + diag(b_off, 1) + diag(b_off, -1);
 
+    % Modify Matrices for Insulated Boundaries
+    % This forces the matrix to inherently solve the zero-flux condition
+    if isnan(bndry(1, 1))
+
+        A(1, 1) = 1 + r / 2;
+
+        B(1, 1) = 1 - r / 2;
+
+    end
+
+    if isnan(bndry(2, 1))
+
+        A(end, end) = 1 + r / 2;
+
+        B(end, end) = 1 - r / 2;
+
+    end
+
     % Iterate through the matrix, avoid boundary conditions
     for k = 1:nt - 1
         % Extract current state
         U_current = U_out(2:nx - 1, k);
 
-        % Calculate boundary terms
         bndry_term = zeros(nx - 2, 1);
-        bndry_term(1) = (r / 2) * (U_out(1, k) + U_out(1, k + 1));
-        bndry_term(end) = (r / 2) * (U_out(end, k) + U_out(end, k + 1));
+
+        % Left Boundary RHS Handling
+
+        if isnan(bndry(1, k + 1))
+
+            bndry_term(1) = 0; % Math is absorbed into the modified matrix
+
+        else
+
+            bndry_term(1) = (r / 2) * (U_out(1, k) + U_out(1, k + 1));
+
+        end
+
+        % Right Boundary RHS Handling
+
+        if isnan(bndry(2, k + 1))
+
+            bndry_term(end) = 0; % Math is absorbed into the modified matrix
+
+        else
+
+            bndry_term(end) = (r / 2) * (U_out(end, k) + U_out(end, k + 1));
+
+        end
 
         % Use matrix division to calculate values
         U_out(2:nx - 1, k + 1) = A \ (B * U_current + bndry_term);
+        % Apply zero-flux condition to boundary nodes for accurate plotting
+        if isnan(bndry(1, k + 1))
+            U_out(1, k + 1) = U_out(2, k + 1);
+        end
+
+        if isnan(bndry(2, k + 1))
+            U_out(end, k + 1) = U_out(end - 1, k + 1);
+        end
+
     end
 
 end
