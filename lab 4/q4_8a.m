@@ -1,7 +1,8 @@
 clc
 clear
 
-[x4a, t4a, U4a] = wave1d( 1, [0, pi], 20, [0, 10], 62, @u4a_init, @du4a_init, @u4a_bndry );
+% Change 10 to 20 & 42 to 62 for the second graph
+[x4a, t4a, U4a] = wave1d( 1, [0, pi], 10, [0, 10], 42, @u4a_init, @du4a_init, @u4a_bndry );
 
 mesh( t4a, x4a, U4a )
 
