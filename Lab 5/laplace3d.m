@@ -20,6 +20,21 @@ function [U_soln] = laplace3d( U )
         throw(MException('MATLAB:invalid_argument', 'The argument U must be a numeric 3D matrix'));
     end
 
+    % 6 boundary faces of the 3D array
+    faces = [ ...
+    reshape(U(1,:,:), 1, []), ...   
+    reshape(U(end,:,:), 1, []), ... 
+    reshape(U(:,1,:), 1, []), ...  
+    reshape(U(:,end,:), 1, []), ... 
+    reshape(U(:,:,1), 1, []), ...  
+    reshape(U(:,:,end), 1, [])     
+    ];
+
+    % Check if -inf is present
+    if any(faces == -inf)
+        throw(MException('MATLAB:invalid_argument', 'The argument U cannot have boundaries equal to -infinity'));
+    end
+
     [n_x, n_y, n_z] = size( U );
     U_soln = U;
 

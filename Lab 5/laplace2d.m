@@ -19,6 +19,14 @@ function [U_soln] = laplace2d( U )
     if ~ismatrix(U) || ~isnumeric(U)
         throw(MException('MATLAB:invalid_argument', 'The argument U must be a numeric 2D matrix'));
     end
+    
+    % Edges of the 2D Matrix
+    edges = [U(1,:), U(end,:), U(:,1).', U(:,end).'];
+
+    % Check if -inf is present
+    if any(edges == -inf)
+        throw(MException('MATLAB:invalid_argument', 'The argument U cannot have boundaries equal to -infinity'));
+    end
 
     [n_x, n_y] = size( U );
     U_soln = U;
