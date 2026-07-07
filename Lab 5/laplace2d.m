@@ -1,4 +1,25 @@
+% laplace2d
+% Solution to the Laplace equation using a square grid of points, 
+% we can model irregular shapes and map them out in matrix form. 
+% Solves for a point using the average of its neighbors.
+% For the insulated boundary case specifically, 
+% we must assume boundary condition are unknown rather than 0; 
+% often leading to a system of linear equations.
+%
+% Parameters
+% ==========
+%    U:	Matrix of points over which solution will be approximated, including boundary conditions
+%
+% Return Values
+% =============
+%    U_out: The matrix Uout is the final approximated solution for all the points provided in U
+
 function [U_soln] = laplace2d( U )
+    % Argument checking
+    if ~ismatrix(U) || ~isnumeric(U)
+        throw(MException('MATLAB:invalid_argument', 'The argument U must be a numeric 2D matrix'));
+    end
+
     [n_x, n_y] = size( U );
     U_soln = U;
 
