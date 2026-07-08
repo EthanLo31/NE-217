@@ -108,7 +108,7 @@ function [U_soln] = laplace3d( U )
             l = z + dir(n,3);
 
             % Skip NaN points
-            if isnan(U(r,c))
+            if isnan(U(i,j,l))
                 continue;
             end
 
@@ -123,7 +123,7 @@ function [U_soln] = laplace3d( U )
                 % Dirichlet value
                 b(k) = b(k) - U(i,j,l);
             end
-
+        end
     end
 
     w = M \ b;
