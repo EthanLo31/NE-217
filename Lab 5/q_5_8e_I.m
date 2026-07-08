@@ -1,4 +1,4 @@
-%  Lab 5 question 5.8e
+%  Lab 5 question 5.8e part 1, finding largest n
 
 n_acc = 0;
 
@@ -42,5 +42,3 @@ for n = 3:20
 end
 
 fprintf('\nLargest acceptable n = %d\n', n_acc);
-
-isosurf1(U_final,51);
